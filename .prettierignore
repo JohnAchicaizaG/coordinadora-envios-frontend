@@ -1,0 +1,17 @@
+# Archivos y carpetas comunes a ignorar
+node_modules
+dist
+build
+coverage
+.vscode
+.env
+*.log
+
+# Archivos específicos que quieres excluir del formateo
+.prettierrc
+package-lock.json
+tsconfig*.json
+README.md
+index.html
+src/index.css
+package.json
