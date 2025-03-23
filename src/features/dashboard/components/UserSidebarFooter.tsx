@@ -41,7 +41,8 @@ export default function UserSidebarFooter() {
                 onClick={handleLogout}
                 variant="outlined"
                 size="small"
-                className="text-white border-white hover:bg-white hover:text-orange-500 transition"
+                className="!text-white border-white hover:bg-white hover:!text-orange-500 transition"
+                sx={{ borderColor: "white" }} // Asegura el borde blanco también
             >
                 Cerrar sesión
             </Button>

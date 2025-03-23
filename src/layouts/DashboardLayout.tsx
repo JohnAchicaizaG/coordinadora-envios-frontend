@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import { Menu } from "@mui/icons-material";
 import UserSidebarFooter from "../features/dashboard/components/UserSidebarFooter";
 import DashboardSidebarMenu from "../features/dashboard/components/DashboardSidebarMenu";
-
+import CoordinadoraLogo from "../assets/coordinadora-logo.svg";
 /**
  * Diseño principal del panel de control (Dashboard).
  *
@@ -19,7 +19,11 @@ export default function DashboardLayout() {
         <div className="min-h-screen flex flex-col md:flex-row bg-white text-gray-800">
             {/* Barra superior para móviles */}
             <header className="md:hidden flex justify-between items-center p-4 bg-orange-500 text-white">
-                <h2 className="text-xl font-bold">Coordinadora</h2>
+                <img
+                    src={CoordinadoraLogo}
+                    alt="Logo Coordinadora"
+                    className="h-8 w-auto object-contain"
+                />
                 <button onClick={() => setMenuOpen(!menuOpen)}>
                     <Menu />
                 </button>
@@ -38,7 +42,11 @@ export default function DashboardLayout() {
             {/* Menú lateral en escritorio */}
             <aside className="w-64 bg-orange-500 text-white p-6 hidden md:flex flex-col justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold mb-6">Coordinadora</h2>
+                    <img
+                        src={CoordinadoraLogo}
+                        alt="Logo Coordinadora"
+                        className="h-16 w-auto object-contain"
+                    />
                     <DashboardSidebarMenu />
                 </div>
                 <UserSidebarFooter />

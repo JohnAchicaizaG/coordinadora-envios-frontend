@@ -1,8 +1,8 @@
-import { Button, TextField, Typography } from "@mui/material";
+import { Button, InputAdornment, TextField, Typography } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { loginSchema, LoginFormData } from "../validators/loginSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import logo from "../../../assets/coordinadora-logo.png";
+import logo from "../../../assets/coordinadora-logo.svg";
 
 // Redux
 import { login } from "../slices/authSlice";
@@ -10,6 +10,7 @@ import { login } from "../slices/authSlice";
 // Router
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import { Email, Lock } from "@mui/icons-material";
 
 /**
  * Componente de formulario de inicio de sesión.
@@ -45,7 +46,7 @@ export default function LoginForm() {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm">
             {/* Logo institucional */}
-            <div className="flex justify-center mb-6">
+            <div className="flex justify-center ">
                 <img
                     src={logo}
                     alt="Logo Coordinadora"
@@ -54,15 +55,17 @@ export default function LoginForm() {
             </div>
 
             {/* Título del formulario */}
-            <div className="mb-6">
+            <div className="mb-10 text-center">
                 <Typography
-                    variant="h5"
-                    className="font-bold mb-11 text-center"
+                    variant="h4"
+                    className="font-extrabold text-transparent text-4xl bg-clip-text bg-gradient-to-r from-orange-500 to-yellow-400 animate-fade-in"
                 >
                     Iniciar sesión
                 </Typography>
+                <p className="text-gray-600 mt-2">
+                    Accede con tu cuenta para comenzar a gestionar tus envíos 🚚
+                </p>
             </div>
-
             {/* Campo: Correo electrónico */}
             <div className="mb-4">
                 <TextField
@@ -71,6 +74,15 @@ export default function LoginForm() {
                     {...register("email")}
                     error={!!errors.email}
                     helperText={errors.email?.message}
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <Email className="text-orange-500" />
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
                 />
             </div>
 
@@ -83,6 +95,15 @@ export default function LoginForm() {
                     {...register("password")}
                     error={!!errors.password}
                     helperText={errors.password?.message}
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <Lock className="text-orange-500" />
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
                 />
             </div>
 

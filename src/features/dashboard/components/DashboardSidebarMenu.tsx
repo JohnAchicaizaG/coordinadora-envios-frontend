@@ -20,8 +20,8 @@ export default function DashboardSidebarMenu() {
                 to="/dashboard"
                 className={({ isActive }) =>
                     isActive
-                        ? "bg-white text-orange-500 font-semibold py-2 px-4 rounded"
-                        : "hover:bg-orange-400 py-2 px-4 rounded"
+                        ? "bg-black/70  text-white font-semibold py-2 px-4 rounded"
+                        : "hover:bg-white py-2 px-4 rounded"
                 }
             >
                 Inicio
