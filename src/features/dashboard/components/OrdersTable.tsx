@@ -39,7 +39,7 @@ import {
     selectLogisticsLoading,
 } from "../slices/logisticsSlice";
 import axios from "../../../app/axiosConfig";
-
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 /**
  * Opciones disponibles para filtrar órdenes por estado.
  * @type {{ value: string, label: string }[]}
@@ -226,12 +226,26 @@ export default function OrdersTable() {
                     },
                 }}
             >
-                <DialogTitle>Asignar ruta y transportista</DialogTitle>
+                <DialogTitle
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        mb: 2,
+                        fontWeight: "bold",
+                        color: "text.primary",
+                    }}
+                >
+                    <LocalShippingIcon sx={{ color: "orange", fontSize: 28 }} />
+                    Asignar ruta y transportista
+                </DialogTitle>
                 <DialogContent>
-                    <Typography variant="body2" className="mb-4">
-                        Orden seleccionada: #{selectedOrderId} —{" "}
-                        <strong>{selectedWeight} kg</strong>
-                    </Typography>
+                    <div className="mb-4">
+                        <Typography variant="body2">
+                            Orden seleccionada: #{selectedOrderId} —{" "}
+                            <strong>{selectedWeight} kg</strong>
+                        </Typography>
+                    </div>
 
                     <FormControl fullWidth className="mb-4">
                         <InputLabel>Ruta</InputLabel>
@@ -241,6 +255,7 @@ export default function OrdersTable() {
                                 setSelectedRouteId(Number(e.target.value))
                             }
                             label="Ruta"
+                            sx={{ marginBottom: "1rem" }}
                         >
                             {routes.map((r) => (
                                 <MenuItem key={r.id} value={r.id}>
