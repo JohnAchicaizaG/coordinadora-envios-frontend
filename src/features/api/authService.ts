@@ -1,7 +1,6 @@
 // src/features/auth/api/authService.ts
 import axios from "axios";
 import { LoginFormData } from "../auth/validators/loginSchema";
-import { LoginResponse } from "../auth/types/apiResponse";
 
 const API_URL = `${import.meta.env.VITE_API_URL}/auth`;
 

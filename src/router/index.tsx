@@ -14,7 +14,6 @@ import ProtectedRoute from "../middlewares/ProtectedRoute";
 import RoleProtectedRoute from "../middlewares/RoleProtectedRoute";
 
 import { Role } from "../shared/constants/roles";
-import LogisticsManagement from "../features/dashboard/pages/LogisticsManagement";
 
 /**
  * Configuración de las rutas de la aplicación utilizando React Router.
@@ -65,14 +64,6 @@ const router = createBrowserRouter([
                 element: (
                     <RoleProtectedRoute allowedRoles={[Role.User]}>
                         <TrackPage />
-                    </RoleProtectedRoute>
-                ),
-            },
-            {
-                path: "logistics-management",
-                element: (
-                    <RoleProtectedRoute allowedRoles={[Role.Admin]}>
-                        <LogisticsManagement />
                     </RoleProtectedRoute>
                 ),
             },

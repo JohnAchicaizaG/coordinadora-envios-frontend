@@ -40,17 +40,7 @@ import {
 } from "../slices/logisticsSlice";
 import axios from "../../../app/axiosConfig";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-/**
- * Opciones disponibles para filtrar órdenes por estado.
- * @type {{ value: string, label: string }[]}
- */
-const statusOptions = [
-    { value: "", label: "Todos" },
-    { value: "pending", label: "Pendiente" },
-    { value: "in_transit", label: "En tránsito" },
-    { value: "delivered", label: "Entregado" },
-];
-
+import { statusOptions } from "../../../shared/constants/statusOption";
 /**
  * Componente que renderiza una tabla con todas las órdenes registradas,
  * permite filtrarlas por estado y asignarles rutas y transportistas.

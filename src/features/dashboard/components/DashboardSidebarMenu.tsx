@@ -28,9 +28,7 @@ export default function DashboardSidebarMenu() {
             </NavLink>
 
             {/* Enlace para crear orden (visible para todos los roles) */}
-            {(user?.role === Role.Admin ||
-                user?.role === Role.AdminLogistics ||
-                user?.role === Role.User) && (
+            {(user?.role === Role.Admin || user?.role === Role.User) && (
                 <NavLink
                     to="/dashboard/create-order"
                     className={({ isActive }) =>
@@ -44,8 +42,7 @@ export default function DashboardSidebarMenu() {
             )}
 
             {/* Enlace para asignar rutas (solo admin y logística) */}
-            {(user?.role === Role.Admin ||
-                user?.role === Role.AdminLogistics) && (
+            {user?.role === Role.Admin && (
                 <NavLink
                     to="/dashboard/assign-route"
                     className={({ isActive }) =>
@@ -55,21 +52,6 @@ export default function DashboardSidebarMenu() {
                     }
                 >
                     Asignar Ruta
-                </NavLink>
-            )}
-
-            {/* Enlace para asignar rutas (solo admin y logística) */}
-            {(user?.role === Role.Admin ||
-                user?.role === Role.AdminLogistics) && (
-                <NavLink
-                    to="/dashboard/logistics-management"
-                    className={({ isActive }) =>
-                        isActive
-                            ? "bg-white text-orange-500 font-semibold py-2 px-4 rounded"
-                            : "hover:bg-orange-400 py-2 px-4 rounded"
-                    }
-                >
-                    Gestión logística
                 </NavLink>
             )}
 
