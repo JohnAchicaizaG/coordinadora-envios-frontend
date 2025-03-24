@@ -38,31 +38,39 @@ export default function OrderForm() {
 
     const onSubmit = async (data: CreateOrderForm) => {
         const dimensions = `${data.length}x${data.width}x${data.height}`;
+        const originAddress = `${data.originStreet}, ${data.originCity}`;
         const destinationAddress = `${data.address}, ${data.city}`;
 
         const payload: CreateOrderPayload = {
             weight: data.weight,
+            originAddress,
             dimensions,
             productType: data.productType,
             destinationAddress,
         };
 
         try {
-            await createOrder(payload);
+            const response = await createOrder(payload);
+            const orderId = response.data.order.id;
+
             showSuccessToast(
-                "🚚 Tu orden ha sido registrada exitosamente. ¡Gracias por usar nuestra plataforma logística!",
+                `🚚 Tu orden ha sido registrada exitosamente. ID de la orden: #${orderId}. ¡Gracias por usar nuestra plataforma logística!`,
             );
+
             reset();
         } catch (err) {
             const error = err as AxiosError<{ message: string }>;
             const message = error.response?.data?.message;
 
-            if (message === "Dirección de destino inválida") {
+            if (
+                message === "Dirección de destino inválida" ||
+                message === "Dirección de origen inválida"
+            ) {
                 showErrorToast(
                     "📍 La dirección ingresada no es válida. Ha sido verificada con Google Maps y no se encontró. Por favor verifica que esté correctamente escrita.",
                 );
             } else {
-                showErrorToast("❌ Error al crear orden");
+                showErrorToast(message || "❌ Error al crear orden");
             }
         }
     };
@@ -175,6 +183,46 @@ export default function OrderForm() {
                 />
             </div>
 
+            {/* Campo: Dirección de origen */}
+            <div>
+                <TextField
+                    label="Dirección de origen (Calle, número, etc.)"
+                    fullWidth
+                    {...register("originStreet")}
+                    error={!!errors.originStreet}
+                    helperText={errors.originStreet?.message}
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <Home />
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
+                />
+            </div>
+
+            {/* Campo: Ciudad de origen */}
+            <div>
+                <TextField
+                    label="Ciudad de origen"
+                    fullWidth
+                    {...register("originCity")}
+                    error={!!errors.originCity}
+                    helperText={errors.originCity?.message}
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <LocationCity />
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
+                />
+            </div>
+
             {/* Campo: Dirección */}
             <div>
                 <TextField
@@ -229,11 +277,6 @@ export default function OrderForm() {
                             backgroundColor: "#ea580c",
                         },
                         color: "#fff",
-                        paddingY: "1rem",
-                        fontSize: "1.125rem",
-                        fontWeight: "600",
-                        textTransform: "none",
-                        borderRadius: "0.75rem",
                     }}
                 >
                     {isSubmitting ? "Enviando..." : "Crear orden"}

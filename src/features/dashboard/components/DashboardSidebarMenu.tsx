@@ -58,6 +58,21 @@ export default function DashboardSidebarMenu() {
                 </NavLink>
             )}
 
+            {/* Enlace para asignar rutas (solo admin y logística) */}
+            {(user?.role === Role.Admin ||
+                user?.role === Role.AdminLogistics) && (
+                <NavLink
+                    to="/dashboard/logistics-management"
+                    className={({ isActive }) =>
+                        isActive
+                            ? "bg-white text-orange-500 font-semibold py-2 px-4 rounded"
+                            : "hover:bg-orange-400 py-2 px-4 rounded"
+                    }
+                >
+                    Gestión logística
+                </NavLink>
+            )}
+
             {/* Enlace a reportes (solo logística) */}
             {user?.role === Role.AdminLogistics && (
                 <NavLink

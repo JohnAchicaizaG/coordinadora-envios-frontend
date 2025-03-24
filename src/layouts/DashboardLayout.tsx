@@ -53,7 +53,7 @@ export default function DashboardLayout() {
             </aside>
 
             {/* Contenido principal del dashboard */}
-            <main className="flex-1 bg-blue-50 p-6 overflow-y-auto">
+            <main className="flex-1 h-screen overflow-y-auto px-6 py-4 bg-blue-50">
                 <Outlet />
             </main>
         </div>

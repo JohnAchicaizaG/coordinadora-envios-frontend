@@ -11,6 +11,9 @@ export interface CreateOrderPayload {
     /** Descripción del tipo de producto a enviar */
     productType: string;
 
+    /** Dirección completa de origen (incluye ciudad) */
+    originAddress: string;
+
     /** Dirección completa de destino (incluye ciudad) */
     destinationAddress: string;
 }

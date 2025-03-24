@@ -1,5 +1,7 @@
 // src/features/dashboard/pages/DashboardHome.tsx
 
+import OrdersTable from "../components/OrdersTable";
+
 /**
  * Página de asignación de rutas.
  *
@@ -8,12 +10,5 @@
  * @returns {JSX.Element} Contenido de la página de asignación de rutas.
  */
 export default function AssignRoutePage() {
-    return (
-        <div className="space-y-6">
-            {/* Mensaje de bienvenida */}
-            <p className="text-gray-600">
-                Bienvenido al panel AssignRoutePage 👋
-            </p>
-        </div>
-    );
+    return <OrdersTable />;
 }
