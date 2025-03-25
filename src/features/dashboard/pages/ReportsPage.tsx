@@ -1,4 +1,8 @@
-// src/features/dashboard/pages/ReportsPage.tsx
+/**
+ * @fileoverview Página de reportes que muestra estadísticas y métricas de órdenes de transporte.
+ * Incluye gráficos, tablas y filtros para analizar el rendimiento de transportistas y rutas.
+ */
+
 import {
     BarChart,
     Bar,
@@ -36,6 +40,7 @@ import {
     selectReportLoading,
     selectReportResults,
     resetFilters,
+    selectReportMetrics,
 } from "../slices/filtersSlice";
 import {
     fetchRoutes,
@@ -44,6 +49,22 @@ import {
     selectTransporters,
 } from "../slices/logisticsSlice";
 
+/**
+ * @component ReportsPage
+ * @description Componente principal que renderiza la página de reportes con gráficos y tablas de métricas.
+ * Permite filtrar y visualizar datos de órdenes de transporte, incluyendo:
+ * - Gráfico de barras de órdenes por estado
+ * - Tabla de métricas de transportistas
+ * - Tabla detallada de órdenes
+ * - Filtros para estado, ruta, transportista y fechas
+ *
+ * @returns {JSX.Element} Componente de página de reportes
+ *
+ * @example
+ * return (
+ *   <ReportsPage />
+ * )
+ */
 export default function ReportsPage() {
     const dispatch = useAppDispatch();
     const filters = useAppSelector(selectReportFilters);
@@ -51,15 +72,30 @@ export default function ReportsPage() {
     const results = useAppSelector(selectReportResults);
     const routes = useAppSelector(selectRoutes);
     const transporters = useAppSelector(selectTransporters);
+    const metrics = useAppSelector(selectReportMetrics);
 
+    /**
+     * @function handleChange
+     * @description Maneja los cambios en los filtros del formulario
+     * @param {keyof typeof filters} field - Campo del filtro a actualizar
+     * @param {string} value - Nuevo valor para el campo
+     */
     const handleChange = (field: keyof typeof filters, value: string) => {
         dispatch(setFilters({ ...filters, [field]: value }));
     };
 
+    /**
+     * @function handleApplyFilters
+     * @description Aplica los filtros actuales y actualiza los datos del reporte
+     */
     const handleApplyFilters = () => {
         dispatch(fetchReportData(filters));
     };
 
+    /**
+     * @function handleReset
+     * @description Reinicia todos los filtros a sus valores iniciales y actualiza los datos
+     */
     const handleReset = () => {
         dispatch(resetFilters());
         dispatch(
@@ -73,7 +109,11 @@ export default function ReportsPage() {
         );
     };
 
-    // Agrupar por estado
+    /**
+     * @function ordersByStatus
+     * @description Calcula el número de órdenes por cada estado
+     * @returns {Record<string, number>} Objeto con el conteo de órdenes por estado
+     */
     const ordersByStatus = results.reduce<Record<string, number>>(
         (acc, order) => {
             acc[order.status] = (acc[order.status] || 0) + 1;
@@ -82,7 +122,6 @@ export default function ReportsPage() {
         {},
     );
 
-    // Convertir a array para Recharts
     const chartData = Object.entries(ordersByStatus).map(([status, count]) => ({
         status: status.replace("_", " "),
         count,
@@ -97,7 +136,7 @@ export default function ReportsPage() {
     return (
         <Box className="px-4 py-6 max-w-7xl mx-auto space-y-6">
             <Typography variant="h5" className="font-bold text-orange-500">
-                Reporte Avanzado de Órdenes 🚚
+                Reporte Avanzado de Órdenes
             </Typography>
 
             <Paper className="p-6 rounded-xl shadow-md space-y-4">
@@ -219,6 +258,62 @@ export default function ReportsPage() {
                 </ResponsiveContainer>
             </Box>
 
+            {metrics.length > 0 && (
+                <Box className="mt-10">
+                    <Typography
+                        variant="h6"
+                        className="mb-4 font-semibold text-gray-800"
+                    >
+                        Métricas de Transportistas
+                    </Typography>
+                    <Paper className="overflow-x-auto rounded-xl shadow-md">
+                        <TableContainer>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Transportista</TableCell>
+                                        <TableCell>
+                                            Órdenes Entregadas
+                                        </TableCell>
+                                        <TableCell>
+                                            Tiempo Promedio (min)
+                                        </TableCell>
+                                        <TableCell>
+                                            Tiempo Promedio (hrs)
+                                        </TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {metrics.map((metric) => (
+                                        <TableRow key={metric.transporterId}>
+                                            <TableCell>
+                                                {metric.transporterName}
+                                            </TableCell>
+                                            <TableCell>
+                                                {metric.deliveredCount}
+                                            </TableCell>
+                                            <TableCell>
+                                                {metric.avgDeliveryTimeMinutes}
+                                            </TableCell>
+                                            <TableCell>
+                                                {metric.averageDeliveryTimeHours.toFixed(
+                                                    2,
+                                                )}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Paper>
+                </Box>
+            )}
+            <Typography
+                variant="h6"
+                className="mb-4 font-semibold text-gray-800"
+            >
+                Órdenes Generales
+            </Typography>
             <Paper className="rounded-xl shadow-md overflow-hidden">
                 {loading ? (
                     <Box className="flex justify-center py-10">

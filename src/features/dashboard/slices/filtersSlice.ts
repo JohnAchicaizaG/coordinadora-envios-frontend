@@ -1,60 +1,18 @@
-// src/features/dashboard/slices/filtersSlice.ts
+/**
+ * @fileoverview Módulo que maneja el estado y las acciones relacionadas con los filtros del dashboard.
+ * Este módulo incluye la lógica para filtrar reportes de pedidos y métricas de transportistas.
+ * @module features/dashboard/slices/filtersSlice
+ */
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "../../../app/axiosConfig";
 import { RootState } from "../../../app/store";
 import { AxiosError } from "axios";
-
-/**
- * @typedef {Object} ReportOrder
- * @property {number} orderId - ID único del pedido
- * @property {string} originAddress - Dirección de origen del pedido
- * @property {string} weight - Peso del pedido
- * @property {string} dimensions - Dimensiones del pedido
- * @property {string} productType - Tipo de producto
- * @property {string} destination - Destino del pedido
- * @property {string} status - Estado actual del pedido
- * @property {string} created_at - Fecha de creación del pedido
- * @property {string|null} routeName - Nombre de la ruta asignada
- * @property {string|null} transporterName - Nombre del transportador asignado
- */
-export interface ReportOrder {
-    orderId: number;
-    originAddress: string;
-    weight: string;
-    dimensions: string;
-    productType: string;
-    destination: string;
-    status: string;
-    created_at: string;
-    routeName: string | null;
-    transporterName: string | null;
-}
-
-/**
- * @typedef {Object} FiltersState
- * @property {Object} filters - Objeto que contiene los filtros de búsqueda
- * @property {string} filters.status - Estado para filtrar
- * @property {string} filters.routeId - ID de la ruta para filtrar
- * @property {string} filters.transporterId - ID del transportador para filtrar
- * @property {string} filters.startDate - Fecha de inicio para filtrar
- * @property {string} filters.endDate - Fecha de fin para filtrar
- * @property {ReportOrder[]} results - Array de resultados filtrados
- * @property {boolean} loading - Estado de carga
- * @property {string|null} error - Mensaje de error si existe
- */
-export interface FiltersState {
-    filters: {
-        status: string;
-        routeId: string;
-        transporterId: string;
-        startDate: string;
-        endDate: string;
-    };
-    results: ReportOrder[];
-    loading: boolean;
-    error: string | null;
-}
+import {
+    FiltersState,
+    ReportOrder,
+    TransporterMetric,
+} from "../types/transporterMetric";
 
 /**
  * Estado inicial del slice de filtros
@@ -69,6 +27,7 @@ const initialState: FiltersState = {
         endDate: "",
     },
     results: [],
+    metrics: [],
     loading: false,
     error: null,
 };
@@ -77,11 +36,11 @@ const initialState: FiltersState = {
  * Thunk para obtener datos del reporte basado en los filtros proporcionados
  * @param {FiltersState['filters']} filters - Objeto con los filtros de búsqueda
  * @param {Object} thunkAPI - API de Redux Toolkit
- * @returns {Promise<ReportOrder[]>} Array de pedidos filtrados
+ * @returns {Promise<{orders: ReportOrder[], metrics: TransporterMetric[]}>} Objeto con pedidos filtrados y métricas
  * @throws {string} Mensaje de error si la petición falla
  */
 export const fetchReportData = createAsyncThunk<
-    ReportOrder[],
+    { orders: ReportOrder[]; metrics: TransporterMetric[] },
     FiltersState["filters"],
     { rejectValue: string }
 >("filters/fetchReportData", async (filters, { rejectWithValue }) => {
@@ -99,6 +58,7 @@ export const fetchReportData = createAsyncThunk<
 
 /**
  * Slice de Redux para manejar el estado de los filtros y resultados del reporte
+ * @type {Slice}
  */
 const filtersSlice = createSlice({
     name: "filters",
@@ -119,7 +79,8 @@ const filtersSlice = createSlice({
             })
             .addCase(fetchReportData.fulfilled, (state, action) => {
                 state.loading = false;
-                state.results = action.payload;
+                state.results = action.payload.orders;
+                state.metrics = action.payload.metrics;
             })
             .addCase(fetchReportData.rejected, (state, action) => {
                 state.loading = false;
@@ -130,6 +91,7 @@ const filtersSlice = createSlice({
 
 /**
  * Acciones del slice de filtros
+ * @type {Object}
  */
 export const { setFilters, resetFilters } = filtersSlice.actions;
 
@@ -153,5 +115,12 @@ export const selectReportResults = (state: RootState) => state.filters.results;
  * @returns {boolean} Estado de carga
  */
 export const selectReportLoading = (state: RootState) => state.filters.loading;
+
+/**
+ * Selector para obtener las métricas de transportistas
+ * @param {RootState} state - Estado global de Redux
+ * @returns {TransporterMetric[]} Array de métricas de transportistas
+ */
+export const selectReportMetrics = (state: RootState) => state.filters.metrics;
 
 export default filtersSlice.reducer;

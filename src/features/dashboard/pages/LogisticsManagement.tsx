@@ -1,5 +1,3 @@
-// src/features/dashboard/pages/LogisticsManagement.tsx
-
 import {
     Box,
     Button,
@@ -149,6 +147,7 @@ export default function LogisticsManagement() {
                             fullWidth
                             label="Contraseña"
                             type="password"
+                            autoComplete="current-password"
                             {...registerUserForm("password")}
                             error={!!userErrors.password}
                             helperText={userErrors.password?.message}
@@ -200,6 +199,7 @@ export default function LogisticsManagement() {
                             {...registerRouteForm("name")}
                             error={!!routeErrors.name}
                             helperText={routeErrors.name?.message}
+                            sx={{ marginTop: "1rem" }}
                         />
                     </div>
 
@@ -233,6 +233,7 @@ export default function LogisticsManagement() {
                             {...registerTransporterForm("name")}
                             error={!!transporterErrors.name}
                             helperText={transporterErrors.name?.message}
+                            sx={{ marginTop: "1rem" }}
                         />
                     </div>
 

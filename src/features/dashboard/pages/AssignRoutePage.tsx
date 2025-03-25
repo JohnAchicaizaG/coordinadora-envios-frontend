@@ -1,5 +1,3 @@
-// src/features/dashboard/pages/DashboardHome.tsx
-
 import OrdersTable from "../components/OrdersTable";
 
 /**

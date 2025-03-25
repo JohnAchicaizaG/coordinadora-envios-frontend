@@ -1,86 +1,143 @@
-// src/features/dashboard/components/OrdersTable.tsx
+/**
+ * @fileoverview Componente que maneja la visualización y gestión de órdenes en una tabla.
+ * Permite filtrar órdenes por estado, asignar rutas y transportistas, y actualizar el estado de las órdenes.
+ *
+ * @module OrdersTable
+ */
 
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
+    SelectChangeEvent,
+    Box,
     Typography,
-    Paper,
-    IconButton,
-    MenuItem,
-    Select,
     FormControl,
     InputLabel,
-    Box,
+    Select,
+    MenuItem,
     CircularProgress,
+    TableContainer,
+    Paper,
+    Table,
+    TableHead,
+    TableRow,
+    TableCell,
+    TableBody,
+    IconButton,
+    Button,
     Dialog,
     DialogTitle,
     DialogContent,
     DialogActions,
-    Button,
 } from "@mui/material";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import { useEffect, useState } from "react";
-import { SelectChangeEvent } from "@mui/material/Select";
+import { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import { statusOptions } from "../../../shared/constants/statusOption";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import {
-    fetchOrders,
-    selectOrders,
-    selectOrdersLoading,
-} from "../slices/ordersSlice";
-import {
-    fetchRoutes,
-    fetchTransporters,
     selectRoutes,
     selectTransporters,
     selectLogisticsLoading,
+    fetchRoutes,
+    fetchTransporters,
 } from "../slices/logisticsSlice";
-import axios from "../../../app/axiosConfig";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import { statusOptions } from "../../../shared/constants/statusOption";
+import {
+    selectOrders,
+    selectOrdersLoading,
+    fetchOrders,
+} from "../slices/ordersSlice";
+import { assignOrder, updateOrderStatus } from "../api/orderService";
+import {
+    showErrorToast,
+    showSuccessToast,
+} from "../../../shared/utils/toastUtils";
+
 /**
- * Componente que renderiza una tabla con todas las órdenes registradas,
- * permite filtrarlas por estado y asignarles rutas y transportistas.
+ * Componente principal que renderiza una tabla de órdenes con funcionalidades de gestión.
  *
  * @component
- * @returns {JSX.Element} Componente de la tabla de órdenes.
+ * @example
+ * ```tsx
+ * <OrdersTable />
+ * ```
+ *
+ * @returns {JSX.Element} Tabla de órdenes con controles de gestión
+ *
+ * @features
+ * - Filtrado de órdenes por estado
+ * - Asignación de rutas y transportistas
+ * - Actualización de estado de órdenes
+ * - Validación de capacidad de transportistas
+ * - Interfaz de usuario con Material-UI
  */
 export default function OrdersTable() {
     const dispatch = useAppDispatch();
 
     const orders = useAppSelector(selectOrders);
     const ordersLoading = useAppSelector(selectOrdersLoading);
-
     const routes = useAppSelector(selectRoutes);
     const transporters = useAppSelector(selectTransporters);
     const logisticsLoading = useAppSelector(selectLogisticsLoading);
 
+    /**
+     * Estado para el filtro de estado de órdenes
+     * @type {string}
+     */
     const [statusFilter, setStatusFilter] = useState("");
+
+    /**
+     * Estado para controlar la visibilidad del modal de asignación
+     * @type {boolean}
+     */
     const [openModal, setOpenModal] = useState(false);
+
+    /**
+     * ID de la orden seleccionada para asignación
+     * @type {number | null}
+     */
     const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+
+    /**
+     * ID de la ruta seleccionada para asignación
+     * @type {number | ""}
+     */
     const [selectedRouteId, setSelectedRouteId] = useState<number | "">("");
+
+    /**
+     * ID del transportista seleccionado para asignación
+     * @type {number | ""}
+     */
     const [selectedTransporterId, setSelectedTransporterId] = useState<
         number | ""
     >("");
+
+    /**
+     * Peso de la orden seleccionada
+     * @type {number}
+     */
     const [selectedWeight, setSelectedWeight] = useState<number>(0);
 
     /**
-     * Transportista seleccionado actualmente para la asignación.
+     * ID de la orden para actualización de estado
+     * @type {string}
      */
+    const [orderId, setOrderId] = useState("");
+
+    /**
+     * Nuevo estado a asignar a la orden
+     * @type {string}
+     */
+    const [status, setStatus] = useState("");
+
     const selectedTransporter = transporters.find(
         (t) => t.id === selectedTransporterId,
     );
-
-    /**
-     * Determina si el peso de la orden excede la capacidad del transportista seleccionado.
-     * @type {boolean}
-     */
     const exceedsCapacity =
         selectedTransporter && selectedWeight > selectedTransporter.capacity;
 
+    /**
+     * Efecto para cargar datos iniciales
+     * Carga órdenes, rutas y transportistas al montar el componente
+     */
     useEffect(() => {
         dispatch(fetchOrders());
         dispatch(fetchRoutes());
@@ -88,8 +145,9 @@ export default function OrdersTable() {
     }, [dispatch]);
 
     /**
-     * Maneja el cambio del filtro por estado.
-     * @param {SelectChangeEvent<string>} event - Evento de cambio en el select de estado.
+     * Maneja el cambio en el filtro de estado de las órdenes.
+     *
+     * @param {SelectChangeEvent<string>} event - Evento del cambio de selección
      */
     const handleFilterChange = (event: SelectChangeEvent<string>) => {
         const selectedStatus = event.target.value;
@@ -98,28 +156,60 @@ export default function OrdersTable() {
     };
 
     /**
-     * Asigna una ruta y un transportista a la orden seleccionada.
+     * Asigna una orden a una ruta y transportista específicos.
+     * Realiza validaciones de capacidad y datos requeridos antes de la asignación.
+     *
      * @async
-     * @returns {Promise<void>}
+     * @throws {Error} Si faltan datos requeridos o si el peso excede la capacidad
      */
     const handleAssignOrder = async () => {
-        if (!selectedOrderId || !selectedRouteId || !selectedTransporterId)
+        if (!selectedOrderId || !selectedRouteId || !selectedTransporterId) {
+            showErrorToast("Faltan datos para asignar la orden");
             return;
+        }
 
-        if (exceedsCapacity) return;
+        if (exceedsCapacity) {
+            showErrorToast("El peso excede la capacidad del transportista");
+            return;
+        }
 
         try {
-            await axios.post("/orders/assign", {
+            await assignOrder({
                 orderId: selectedOrderId,
                 routeId: selectedRouteId,
                 transporterId: selectedTransporterId,
             });
+
+            showSuccessToast("Orden asignada con éxito ✅");
+
             setOpenModal(false);
             setSelectedRouteId("");
             setSelectedTransporterId("");
             dispatch(fetchOrders(statusFilter));
         } catch (err) {
             console.error("Error al asignar orden", err);
+            showErrorToast("Error al asignar la orden ❌");
+        }
+    };
+
+    /**
+     * Actualiza el estado de una orden específica.
+     *
+     * @async
+     * @throws {Error} Si faltan datos requeridos o si hay un error en la actualización
+     */
+    const handleSubmit = async () => {
+        if (!orderId || !status) return alert("Completa ambos campos");
+
+        try {
+            await updateOrderStatus(Number(orderId), status);
+            showSuccessToast("Estado actualizado con éxito ✅");
+            setOrderId("");
+            setStatus("");
+            dispatch(fetchOrders(statusFilter));
+        } catch (err) {
+            console.error("Error al actualizar estado", err);
+            showErrorToast("Error al actualizar el estado ❌");
         }
     };
 
@@ -202,6 +292,58 @@ export default function OrdersTable() {
                 </TableContainer>
             )}
 
+            {/* Cambiar estado de una orden */}
+            <Paper className="mt-10 p-6 rounded-xl shadow-md space-y-4">
+                <Typography
+                    variant="h6"
+                    className="font-semibold text-gray-800"
+                >
+                    Cambiar Estado de Orden 🚚
+                </Typography>
+
+                <FormControl fullWidth className="mb-4">
+                    <InputLabel>ID de la Orden</InputLabel>
+                    <Select
+                        value={orderId}
+                        label="ID de la Orden"
+                        onChange={(e) => setOrderId(e.target.value)}
+                        sx={{ marginBottom: "1rem" }}
+                    >
+                        {orders.map((o) => (
+                            <MenuItem key={o.orderId} value={o.orderId}>
+                                #{o.orderId} — {o.productType}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+
+                <FormControl fullWidth className="mb-4">
+                    <InputLabel>Nuevo Estado</InputLabel>
+                    <Select
+                        value={status}
+                        label="Nuevo Estado"
+                        onChange={(e) => setStatus(e.target.value)}
+                        sx={{ marginBottom: "1rem" }}
+                    >
+                        {statusOptions.map((opt) => (
+                            <MenuItem key={opt.value} value={opt.value}>
+                                {opt.label}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+
+                <Button
+                    onClick={handleSubmit}
+                    variant="contained"
+                    color="primary"
+                    disabled={!orderId || !status}
+                >
+                    Actualizar Estado
+                </Button>
+            </Paper>
+
+            {/* Diálogo para asignación de ruta y transportista */}
             <Dialog
                 open={openModal}
                 onClose={() => setOpenModal(false)}

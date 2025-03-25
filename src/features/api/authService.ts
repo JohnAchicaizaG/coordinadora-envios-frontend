@@ -1,4 +1,3 @@
-// src/features/auth/api/authService.ts
 import axios from "axios";
 import { LoginFormData } from "../auth/validators/loginSchema";
 
