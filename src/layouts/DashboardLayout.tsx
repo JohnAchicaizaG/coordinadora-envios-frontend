@@ -24,7 +24,10 @@ export default function DashboardLayout() {
                     alt="Logo Coordinadora"
                     className="h-8 w-auto object-contain"
                 />
-                <button onClick={() => setMenuOpen(!menuOpen)}>
+                <button
+                    aria-label="Abrir menú lateral"
+                    onClick={() => setMenuOpen(!menuOpen)}
+                >
                     <Menu />
                 </button>
             </header>

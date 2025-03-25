@@ -31,7 +31,7 @@ export interface Order {
  * @property {boolean} loading - Estado de carga
  * @property {string|null} error - Mensaje de error si existe
  */
-interface OrdersState {
+export interface OrdersState {
     orders: Order[];
     loading: boolean;
     error: string | null;

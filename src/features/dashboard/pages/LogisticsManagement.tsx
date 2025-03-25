@@ -75,7 +75,7 @@ export default function LogisticsManagement() {
     const onSubmitUser = async (data: UserSchema) => {
         try {
             await registerUser(data);
-            toast.success("✅ Usuario registrado");
+            toast.success("Usuario registrado");
             resetUserForm();
         } catch {
             toast.error("❌ Error al registrar usuario");
@@ -91,7 +91,7 @@ export default function LogisticsManagement() {
     const onSubmitRoute = async (data: RouteSchema) => {
         try {
             await registerRoute(data);
-            toast.success("✅ Ruta registrada");
+            toast.success(" Ruta registrada");
             resetRouteForm();
         } catch {
             toast.error("❌ Error al registrar ruta");
@@ -107,7 +107,7 @@ export default function LogisticsManagement() {
     const onSubmitTransporter = async (data: TransporterSchema) => {
         try {
             await registerTransporter(data);
-            toast.success("✅ Transportista registrado");
+            toast.success("Transportista registrado");
             resetTransporterForm();
         } catch {
             toast.error("❌ Error al registrar transportista");
@@ -254,7 +254,6 @@ export default function LogisticsManagement() {
                             select
                             fullWidth
                             label="¿Está disponible?"
-                            defaultValue="true"
                             {...registerTransporterForm("available")}
                         >
                             <MenuItem value="true">Disponible: Sí</MenuItem>
